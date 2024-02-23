@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import {Text, Box,Newline, useApp, useInput} from 'ink';
-import cp from 'child_process'
+import {Text, Box, useApp, useInput, Newline} from 'ink';
+// import {spawn} from 'child_process'
+import { powermetricsStats } from './powermetrics.js';
 // import util from 'util';
 // const exec = util.promisify(cp.exec);
 
 
 
-//time
+// sudo powermetrics --samplers cpu_power,gpu_power,thermal -f plist -o /tmp/asitop_111.xml
 
 export default function App() {
-	const [time, setTime] = useState<string>('DIO CANE');
-	const [uid, setUod] = useState<string>('myuid');
-	
+	const [cpuenergy, setCPUenergy] = useState<string>('');
+
 	const {exit} = useApp();
 	useInput((input) => {
 		if (input === 'q') {
@@ -23,49 +23,31 @@ export default function App() {
 
 	useEffect(() => {
 		// setTime(new Date().toLocaleTimeString());
-		setInterval(() => {
-			
-			// setTime(`temp: `+new Date().toLocaleTimeString());
-			cp.exec('date', (err, stdout, _stderr) => {
-				if(stdout){
-					setTime(stdout);
-				}
-				if(err){
-					setTime(`ERROR: ${err}`);
-				}
-			});
+		const killPowerMetricsStats = powermetricsStats({onData: (stats) => {
+			setCPUenergy(stats.cpu_energy.toString())
+		}})
 
-			if(process.env['SUDO_UID']){
-				const uid = parseInt(process.env['SUDO_UID']);
-				setUod(`UID: ${uid}`);
-			}else{
-				setUod(`UID: NOUID`);
-			}
-
-			// exec('time')
-			// 	.then(({ stdout, stderr } ) => {
-			// 		if(stdout){
-			// 			setTime(stdout);
-			// 		}
-			// 		if(!stderr){
-			// 			setTime(`ERROR: ${stderr}`);
-			// 		}
-			// 	});
-			
-		}, 1000);
+		return () => {
+			killPowerMetricsStats()
+		}
+		
 	}, [])	
 
 	return (
 		<Box borderStyle='single' padding={2} flexDirection='column'>
-			<Box>
+			<Box width='100%' >
+				<Text>CPU Energy: {cpuenergy}</Text> 
+			</Box>
+			<Newline />
+			{/* <Box>
                 <Box width='50%'><Text>{time}</Text></Box>
                 <Box width='50%'><Text>{uid}</Text></Box>
             </Box>
-			<Newline />
-			<Box>
-                <Box width='50%'><Text>COIN</Text></Box>
+			<Newline /> */}
+			{/* <Box>
+                <Box width='50%'><Text>{msg}</Text></Box>
                 <Box width='50%'><Text>PRICE (USD)</Text></Box>
-            </Box>
+            </Box> */}
 
 		</Box>
 	);

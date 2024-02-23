@@ -28,7 +28,6 @@ if(!uid){
 	process.exit(1);
 }
 
-console.log(uid)
 
 const enterAltScreenCommand = "\x1b[?1049h";
 const leaveAltScreenCommand = "\x1b[?1049l";
