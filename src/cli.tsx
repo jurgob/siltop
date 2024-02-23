@@ -4,6 +4,7 @@ import {render} from 'ink';
 // import meow from 'meow';
 import App from './app.js';
 
+import which from 'which';
 // const cli = meow(
 // 	`
 // 	Usage
@@ -27,7 +28,12 @@ if(!uid){
 	console.log(`sudo siltop`);
 	process.exit(1);
 }
-
+const resolvedOrNull = which.sync('powermetrics', { nothrow: true })
+if(!resolvedOrNull){
+	console.log(`ERROR: powermetrics command not found, `);
+	console.log(`siltop is supposed to work only on laptops with Apple Silicon chip which has powermetrics command installed`);
+	process.exit(1);
+}
 
 const enterAltScreenCommand = "\x1b[?1049h";
 const leaveAltScreenCommand = "\x1b[?1049l";
